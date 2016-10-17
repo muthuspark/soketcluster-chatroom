@@ -1,0 +1,36 @@
+{
+  "name": "socketcluster-sample",
+  "description": "A sample SocketCluster app",
+  "version": "1.0.0",
+  "contributors": [
+    {
+      "name": "Muthukrishnan",
+      "email": "muthukrishnan749@gmail.com"
+    }
+  ],
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "connect": "3.0.1",
+    "express": "4.13.1",
+    "minimist": "1.1.0",
+    "serve-static": "1.8.0",
+    "sc-cluster-broker-client": "1.x.x",
+    "socketcluster": "5.x.x",
+    "socketcluster-client": "5.x.x",
+    "level": "^1.4.0",
+    "leveldown": "^1.4.6",
+    "levelup": "^1.3.2",
+    "restify": "*",
+    "uuid": "^2.0.3"
+  },
+  "keywords": [
+    "websocket",
+    "server",
+    "realtime",
+    "cluster",
+    "scalable"
+  ],
+  "readmeFilename": "README.md"
+}

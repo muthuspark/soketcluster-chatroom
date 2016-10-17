@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html ng-app="chatApp">
+
+<head>
+    <title>Chat App</title>
+    <link href="https://fonts.googleapis.com/css?family=Didact+Gothic" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:400,700" rel="stylesheet">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="icon" type="image/png" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="
+https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript" src="/socketcluster.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
+    <script type="text/javascript" src="angular-timeago.min.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+</head>
+
+<body>
+    <div class="chat-room" ng-controller="chatController">
+        <aside class="left-side">
+            <div class="user-head">
+                <i class="fa fa-comments-o"></i>
+                <h3>TalkDodo</h3>
+            </div>
+            <ul class="chat-list">
+                <li class="">
+                    <a href ng-click="showcreategroup=!showcreategroup">
+                        <h4>
+                            <i class="fa fa-plus"></i>
+                            Create Group
+                        </h4>
+                    </a>
+                </li>
+                <li class="">
+                    <a href ng-click="showjoingroup=!showjoingroup">
+                        <h4>
+                            <i class="fa fa-plus"></i>
+                            Join Group
+                        </h4>
+                    </a>
+                </li>
+                <li class="creategroupform" ng-show="showcreategroup">
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="groupname" placeholder="Group Name">
+                        <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="createGroup()">Create</button>
+                      </span>
+                    </div>
+                </li>
+                <li class="creategroupform" ng-show="showjoingroup">
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="invitecode" placeholder="Invite Code">
+                        <span class="input-group-btn">
+                        <button class="btn btn-success" ng-click="joinGroup()">Join</button>
+                      </span>
+                    </div>
+                </li>
+                <li>
+                    <a href ng-repeat="gp in groups" ng-click="opengroup(gp)">
+                        <span>{{gp.gn}}</span>
+                        <i class="fa fa-times pull-right"></i>
+                    </a>
+                </li>
+                <!-- <li class="active">
+                    <a href="chat_room.html">
+                        <span>Water Cooler</span>
+                        <i class="fa fa-times pull-right"></i>
+                    </a>
+                </li> -->
+            </ul>
+            <footer>
+                <a class="chat-avatar" href="javascript:;">
+                    <img alt="" src="{{me.i}}">
+                </a>
+                <div class="user-status">
+                    <i class="fa fa-circle text-success"></i> Available
+                </div>
+                <a class="chat-dropdown pull-right" href="javascript:;">
+                    <i class="fa fa-chevron-down"></i>
+                </a>
+            </footer>
+        </aside>
+        <aside class="mid-side">
+            <div class="chat-room-head">
+                <h3 ng-if="activegroup.gn">{{activegroup.gn}} </h3>
+                <h3 class="pull-right" ng-if="activegroup.tf"><small>Invite Code:</small> {{activegroup.tf}}</h3>
+                <!-- <form action="#" class="pull-right position">
+                    <input type="text" placeholder="Search" class="form-control search-btn ">
+                </form> -->
+            </div>
+            <div id="group-container">
+                <div class="group-rom" ng-repeat="message in messages track by $index">
+                    <div class="media" id="{{$index}}">
+                        <div class="media-left">
+                            <a href="#">
+                                <img class="media-object" src="{{message.i}}">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading">{{message.n}}<small class="time pull-right">{{message.t | timeAgo}}</small></h4>
+                            <p>{{message.m}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer ng-show="activegroup.id">
+                <div class="chat-txt">
+                    <input type="text" ng-model="message" ng-enter="send()" class="form-control">
+                </div>
+                <div class="btn-group">
+                    <!-- <button type="button" class="btn btn-white"><i class="fa fa-meh-o"></i></button> -->
+                    <button type="button" class="btn btn-white"><i class=" fa fa-paperclip"></i></button>
+                </div>
+                <button class="btn btn-danger" ng-click="send()">Send</button>
+            </footer>
+        </aside>
+        <aside class="right-side">
+            <div class="user-head">
+                <a href="#" class="chat-tools btn-success"><i class="fa fa-cog"></i> </a>
+                <a href="#" class="chat-tools btn-key"><i class="fa fa-key"></i> </a>
+            </div>
+            <div class="invite-row">
+                <h4 class="pull-left">People</h4>
+            </div>
+            <ul class="chat-available-user">
+                <li ng-repeat="user in groupusers[activegroup.id]">
+                    <a href>
+                        <i class="fa fa-circle text-success"></i>
+                        {{user.value}}
+                    </a>
+                </li>
+            </ul>
+        </aside>
+    </div>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('.chat-room').height(window.innerHeight + 'px')
+        $('#group-container').height((window.innerHeight - 70) + 'px')
+    })
+    </script>
+</body>
+
+</html>
